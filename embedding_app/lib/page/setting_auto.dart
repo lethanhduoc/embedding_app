@@ -47,7 +47,7 @@ class _SettingAutomaticState extends State<SettingAutomatic> {
             SizedBox(height: 15,),
             InkWell(
               onTap:() {
-                
+                _showDialog(context);
               },
               child: Container(
                 width:screenSize.width/1.5,
@@ -69,6 +69,33 @@ class _SettingAutomaticState extends State<SettingAutomatic> {
           ],
         )
       ))
+    );
+  }
+  _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog( backgroundColor: Colors.white,
+          title: Text('Chọn tác vụ', style:GoogleFonts.sarabun(fontSize: 18, fontWeight: FontWeight.bold, color:Colors.black)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: Text('Máy bom tự động', style: GoogleFonts.sarabun(fontSize: 16, color: Colors.black)),
+                onTap: () {
+                  Navigator.pushNamed(context, "/autowater");
+                },
+              ),
+              ListTile(
+                title: Text('Mở đèn tự động', style: GoogleFonts.sarabun(fontSize: 16, color: Colors.black)),
+                onTap: () {
+                  Navigator.pushNamed(context, "/autolight");
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

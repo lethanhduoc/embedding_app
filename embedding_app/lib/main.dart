@@ -3,6 +3,8 @@ import 'package:embedding_app/page/crop_information.dart';
 import 'package:embedding_app/page/dashboard_screen.dart';
 import 'package:embedding_app/page/login_screen.dart';
 import 'package:embedding_app/page/setting_auto.dart';
+import 'package:embedding_app/page/setting_auto_light.dart';
+import 'package:embedding_app/page/setting_auto_water.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -21,11 +23,14 @@ class MyApp extends StatelessWidget {
         "/dashboard":(context) => const DashboardScreen(),
         "/cropinformation":(context) => const CropInformation(),
         "/controlpanel":(context) => const ControlPanel(),
-        "/settingautomatic":(context) => const SettingAutomatic()
+        "/settingautomatic":(context) => const SettingAutomatic(),
+        "/autolight":(context) => const AutoLight(),
+        "/autowater":(context) => const AutoWater(),
       },
       debugShowCheckedModeBanner: false,
       home: LoginScreen(),
     );
   }
+  
 }
 
