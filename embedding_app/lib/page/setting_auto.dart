@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 class SettingAutomatic extends StatefulWidget {
@@ -8,6 +9,25 @@ class SettingAutomatic extends StatefulWidget {
 }
 
 class _SettingAutomaticState extends State<SettingAutomatic> {
+  DatabaseReference dbRefLight = FirebaseDatabase.instance.ref().child("data");
+  bool isAutoLight = false;
+  bool isAutoWater = false;
+   @override
+  void initState(){
+    super.initState();
+  }
+  void updateLightIsOn(bool newValue) {
+  DatabaseReference lightRef = dbRefLight.child("Farming_area/light");
+  lightRef.update({
+    "isAuto": newValue,
+  });
+}
+void updatePumbIsOn(bool newValue) {
+  DatabaseReference lightRef = dbRefLight.child("Farming_area/pump");
+  lightRef.update({
+    "isAuto": newValue,
+  });
+}
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
@@ -25,7 +45,15 @@ class _SettingAutomaticState extends State<SettingAutomatic> {
           children: [
             InkWell(
               onTap:() {
-                
+                setState(() {
+                        isAutoLight == false ;
+                        isAutoWater == false ;
+                        updateLightIsOn(isAutoLight);
+                        updatePumbIsOn(isAutoWater);
+                        print(isAutoLight);
+                        print(isAutoWater);
+                      });
+                showAlertDialog(context);
               },
               child: Container(
                 width:screenSize.width/1.5,
@@ -81,14 +109,24 @@ class _SettingAutomaticState extends State<SettingAutomatic> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                title: Text('Máy bom tự động', style: GoogleFonts.sarabun(fontSize: 16, color: Colors.black)),
+                title: Text('Máy bơm tự động', style: GoogleFonts.sarabun(fontSize: 16, color: Colors.black)),
                 onTap: () {
+                  setState(() {
+                        isAutoWater == true ;
+                        updatePumbIsOn(isAutoWater);
+                        print(isAutoWater);
+                      });
                   Navigator.pushNamed(context, "/autowater");
                 },
               ),
               ListTile(
                 title: Text('Mở đèn tự động', style: GoogleFonts.sarabun(fontSize: 16, color: Colors.black)),
                 onTap: () {
+                  setState(() {
+                        isAutoLight == true ;
+                        updateLightIsOn(isAutoLight);
+                        print(isAutoLight);
+                      });
                   Navigator.pushNamed(context, "/autolight");
                 },
               ),
@@ -98,4 +136,29 @@ class _SettingAutomaticState extends State<SettingAutomatic> {
       },
     );
   }
+}
+showAlertDialog(BuildContext context) {
+  // Create button
+  Widget okButton = TextButton(
+    child: const Text("OK", style: TextStyle(color: Colors.black)),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  );
+
+  // Create AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Thông báo"),
+    content: Text("Chế độ điều khiển đã được mở"),
+    actions: [
+      okButton,
+    ],
+  );
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

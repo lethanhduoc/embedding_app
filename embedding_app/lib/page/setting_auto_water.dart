@@ -1,5 +1,7 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 class AutoWater extends StatefulWidget {
   const AutoWater({super.key});
 
@@ -8,6 +10,7 @@ class AutoWater extends StatefulWidget {
 }
 
 class _AutoWaterState extends State<AutoWater> {
+  DatabaseReference dbRefPump = FirebaseDatabase.instance.ref().child("data/Farming_area/pump/auto_setting");
   DateTime _selectedDate = DateTime.now();
    Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -22,26 +25,62 @@ class _AutoWaterState extends State<AutoWater> {
       });
     }
   }
-  TimeOfDay _timeOfDay = TimeOfDay.now();
-  Future<void> _showTimePicker(BuildContext context) async {
+  TimeOfDay _timeOfDayOn = TimeOfDay.now();
+  TimeOfDay _timeOfDayOff = TimeOfDay.now();
+  Future<void> _showTimePickerOn(BuildContext context) async {
     showTimePicker(
       context: context,
       initialTime: DateTime.now().day == _selectedDate.day
           ? TimeOfDay.now()
           : const TimeOfDay(hour: 07, minute: 30),
     ).then((value) {
-      _timeOfDay = value!;
+      _timeOfDayOn = value!;
       setState(() {
         
       });
     });
   }
+
+  Future<void> _showTimePickerOff(BuildContext context) async {
+    showTimePicker(
+      context: context,
+      initialTime: DateTime.now().day == _selectedDate.day
+          ? TimeOfDay.now()
+          : const TimeOfDay(hour: 07, minute: 30),
+    ).then((value) {
+      _timeOfDayOff = value!;
+      setState(() {
+        
+      });
+    });
+  }
+  void saveAutoSetting(DateTime selectedDate, TimeOfDay timeOn, TimeOfDay timeOff) {
+  // Định dạng ngày tháng
+  String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+
+  // Định dạng thời gian
+  String formattedTimeOn = "${timeOn.hour}:${timeOn.minute}";
+  String formattedTimeOff = "${timeOff.hour}:${timeOff.minute}";
+
+  // Lưu giá trị vào Firebase
+  dbRefPump.update({
+    "date": formattedDate,
+    "timeOn": formattedTimeOn,
+    "timeOff": formattedTimeOff,
+  });
+}
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(title:Text("Cài đặt tự động", style: GoogleFonts.sarabun(color:Colors.white, fontSize: 25, fontWeight: FontWeight.bold)),
-                      backgroundColor: const Color.fromARGB(255, 133, 246, 3).withOpacity(0.3),),
+                      backgroundColor: const Color.fromARGB(255, 133, 246, 3).withOpacity(0.3),
+                      actions: [
+                        IconButton(onPressed: (){
+                          saveAutoSetting(_selectedDate, _timeOfDayOn, _timeOfDayOff);
+                          showAlertDialog(context);
+                        }, icon: Icon(Icons.check), iconSize: 35,)
+                      ],),
       body: SafeArea(
         child: Container(
           width:screenSize.width,
@@ -101,17 +140,7 @@ class _AutoWaterState extends State<AutoWater> {
                                                         children: <Widget>[
                                                           Text(
                                                             // ignore: unrelated_type_equality_checks
-                                                            _timeOfDay.minute ==
-                                                                    DateTime.now()
-                                                                        .minute
-                                                                ? ' '
-                                                                : screenSize.width <
-                                                                        651
-                                                                    ? _timeOfDay
-                                                                        .format(
-                                                                            context)
-                                                                        .toString()
-                                                                    : '${"  "}:${_timeOfDay.format(context).toString()}',
+                                                            '${"  "}${_timeOfDayOn.format(context).toString()}',
                                                             style: TextStyle(
                                                                 fontSize:16,
                                                                 fontWeight: FontWeight.bold,
@@ -121,7 +150,7 @@ class _AutoWaterState extends State<AutoWater> {
                                                           ),
                                                           TextButton(
                                                             onPressed: () {
-                                                              _showTimePicker(
+                                                              _showTimePickerOn(
                                                                   context);
                                                               setState(() {});
                                                             },
@@ -189,17 +218,7 @@ class _AutoWaterState extends State<AutoWater> {
                                                         children: <Widget>[
                                                           Text(
                                                             // ignore: unrelated_type_equality_checks
-                                                            _timeOfDay.minute ==
-                                                                    DateTime.now()
-                                                                        .minute
-                                                                ? ' '
-                                                                : screenSize.width <
-                                                                        651
-                                                                    ? _timeOfDay
-                                                                        .format(
-                                                                            context)
-                                                                        .toString()
-                                                                    : '${"  "}:${_timeOfDay.format(context).toString()}',
+                                                            '${"  "}${_timeOfDayOff.format(context).toString()}',
                                                             style: TextStyle(
                                                                 fontSize:16,
                                                                 fontWeight: FontWeight.bold,
@@ -209,7 +228,7 @@ class _AutoWaterState extends State<AutoWater> {
                                                           ),
                                                           TextButton(
                                                             onPressed: () {
-                                                              _showTimePicker(
+                                                              _showTimePickerOff(
                                                                   context);
                                                               setState(() {});
                                                             },
@@ -342,4 +361,29 @@ class _AutoWaterState extends State<AutoWater> {
       ))
     );
   }
+}
+showAlertDialog(BuildContext context) {
+  // Create button
+  Widget okButton = TextButton(
+    child: const Text("OK", style: TextStyle(color: Colors.black)),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  );
+
+  // Create AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Thông báo"),
+    content: Text("Cài đặt tự động mở máy bơm thành công"),
+    actions: [
+      okButton,
+    ],
+  );
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

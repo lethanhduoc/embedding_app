@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "484824323293",
+    "firebase_url": "https://watering-98bbb-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "watering-98bbb",
+    "storage_bucket": "watering-98bbb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484824323293:android:3565fedfa182710145b734",
+        "android_client_info": {
+          "package_name": "com.example.embedding_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAT1zg85-cxwCdSEjbusS8oFkRdGtfZN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

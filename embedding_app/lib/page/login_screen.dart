@@ -13,6 +13,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(title:Text("Trang chủ", style: GoogleFonts.sarabun(color:Colors.white, fontSize: 25, fontWeight: FontWeight.bold)),
+                      backgroundColor: Color.fromARGB(255, 133, 246, 3).withOpacity(0.3),),
       body: SafeArea(
         child: Container(
           width: screenSize.width,
@@ -128,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             const Color(0xFF43584D)),
                                   ),
                                   onPressed: () {
-                                  Navigator.pushNamed(context, "/dashboard");
+                                  Navigator.pushNamed(context, "/selectnode");
                                   },
                                   child: Text(
                                     "Đăng nhập",

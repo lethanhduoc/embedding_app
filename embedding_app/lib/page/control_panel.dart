@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 class ControlPanel extends StatefulWidget {
@@ -8,8 +9,25 @@ class ControlPanel extends StatefulWidget {
 }
 
 class _ControlPanelState extends State<ControlPanel> {
+  DatabaseReference dbRefLight = FirebaseDatabase.instance.ref().child("data");
   bool isSwichedLight = false;
   bool isSwichedWater = false;
+  @override
+  void initState(){
+    super.initState();
+  }
+  void updateLightIsOn(bool newValue) {
+  DatabaseReference lightRef = dbRefLight.child("Farming_area/light");
+  lightRef.update({
+    "isOn": newValue,
+  });
+}
+void updatePumbIsOn(bool newValue) {
+  DatabaseReference lightRef = dbRefLight.child("Farming_area/pump");
+  lightRef.update({
+    "isOn": newValue,
+  });
+}
   @override
   Widget build(BuildContext context) {
     final MaterialStateProperty<Color?> trackColor =
@@ -40,7 +58,28 @@ class _ControlPanelState extends State<ControlPanel> {
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(title:Text("Trung tâm điều khiển", style: GoogleFonts.sarabun(color:Colors.white, fontSize: 25, fontWeight: FontWeight.bold)),
-                      backgroundColor: Color.fromARGB(255, 133, 246, 3).withOpacity(0.3),),
+                      backgroundColor: Color.fromARGB(255, 133, 246, 3).withOpacity(0.3),
+                      actions: [
+                        IconButton(onPressed: (){
+                          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Thông báo"),
+                content: Text("Đã cập nhật tác vụ", style: GoogleFonts.sarabun(fontSize: 16),),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/dashboard");
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+                        }, icon: Icon(Icons.check), iconSize: 35,)
+                      ],),
       body: SafeArea(
         child: Container(
           width:screenSize.width,
@@ -74,6 +113,7 @@ class _ControlPanelState extends State<ControlPanel> {
                       value: isSwichedLight, onChanged: (value){
                       setState(() {
                         isSwichedLight = value;
+                        updateLightIsOn(value);
                       });
                     })
                   ],
@@ -103,6 +143,7 @@ class _ControlPanelState extends State<ControlPanel> {
                       value: isSwichedWater, onChanged: (value){
                       setState(() {
                         isSwichedWater= value;
+                        updatePumbIsOn(value);
                       });
                     })
                   ],

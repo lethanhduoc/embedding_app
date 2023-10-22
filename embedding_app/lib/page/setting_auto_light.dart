@@ -1,5 +1,7 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 class AutoLight extends StatefulWidget {
   const AutoLight({super.key});
 
@@ -8,6 +10,7 @@ class AutoLight extends StatefulWidget {
 }
 
 class _AutoLightState extends State<AutoLight> {
+  DatabaseReference dbRefLight = FirebaseDatabase.instance.ref().child("data/Farming_area/light/auto_setting");
   DateTime _selectedDate = DateTime.now();
    Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -22,15 +25,72 @@ class _AutoLightState extends State<AutoLight> {
       });
     }
   }
-  TimeOfDay _timeOfDay = TimeOfDay.now();
-  Future<void> _showTimePicker(BuildContext context) async {
+  TimeOfDay _timeOfDayOn = TimeOfDay.now();
+  TimeOfDay _timeOfDayOff = TimeOfDay.now();
+  Future<void> _showTimePickerOn(BuildContext context) async {
     showTimePicker(
       context: context,
       initialTime: DateTime.now().day == _selectedDate.day
           ? TimeOfDay.now()
           : const TimeOfDay(hour: 07, minute: 30),
     ).then((value) {
-      _timeOfDay = value!;
+      _timeOfDayOn = value!;
+      setState(() {
+        if (DateTime.now().day == _selectedDate.day &&
+                _timeOfDayOn.hour < TimeOfDay.now().hour ||
+            DateTime.now().day == _selectedDate.day &&
+                // ignore: unrelated_type_equality_checks
+                _timeOfDayOn.hour == TimeOfDay.now() &&
+                _timeOfDayOn.minute < TimeOfDay.now().minute) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Thông báo lỗi"),
+                content: Text("Thời gian không hợp lệ!"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        } 
+        // else {
+        //   widget.seltetedDatetime(
+        //       '${DateFormat('dd-MM-yyyy').format(_selectedDate)}  ${_timeOfDay.format(context).toString()}');
+        // }
+      });
+    });
+  }
+  void saveAutoSetting(DateTime selectedDate, TimeOfDay timeOn, TimeOfDay timeOff) {
+  // Định dạng ngày tháng
+  String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+
+  // Định dạng thời gian
+  String formattedTimeOn = "${timeOn.hour}:${timeOn.minute}";
+  String formattedTimeOff = "${timeOff.hour}:${timeOff.minute}";
+
+  // Lưu giá trị vào Firebase
+  dbRefLight.update({
+    "date": formattedDate,
+    "timeOn": formattedTimeOn,
+    "timeOff": formattedTimeOff,
+  });
+}
+
+  Future<void> _showTimePickerOff(BuildContext context) async {
+    showTimePicker(
+      context: context,
+      initialTime: DateTime.now().day == _selectedDate.day
+          ? TimeOfDay.now()
+          : const TimeOfDay(hour: 07, minute: 30),
+    ).then((value) {
+      _timeOfDayOff = value!;
       setState(() {
         
       });
@@ -41,7 +101,13 @@ class _AutoLightState extends State<AutoLight> {
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(title:Text("Cài đặt tự động", style: GoogleFonts.sarabun(color:Colors.white, fontSize: 25, fontWeight: FontWeight.bold)),
-                      backgroundColor: const Color.fromARGB(255, 133, 246, 3).withOpacity(0.3),),
+                      backgroundColor: const Color.fromARGB(255, 133, 246, 3).withOpacity(0.3),
+                      actions: [
+                        IconButton(onPressed: (){
+                          saveAutoSetting(_selectedDate, _timeOfDayOn, _timeOfDayOff);
+                          showAlertDialog(context);
+                        }, icon: Icon(Icons.check), iconSize: 35,)
+                      ],),
       body: SafeArea(
         child: Container(
           width:screenSize.width,
@@ -68,10 +134,7 @@ class _AutoLightState extends State<AutoLight> {
                                                       .withOpacity(0.8)),
                                             ),
                                             Padding(
-                                              padding: EdgeInsets.only(
-                                                  left: screenSize.width < 651
-                                                      ? 20
-                                                      : 32),
+                                              padding: EdgeInsets.only(left:20),
                                               child: Container(
                                                 padding: const EdgeInsets.only(
                                                     left: 7),
@@ -101,17 +164,7 @@ class _AutoLightState extends State<AutoLight> {
                                                         children: <Widget>[
                                                           Text(
                                                             // ignore: unrelated_type_equality_checks
-                                                            _timeOfDay.minute ==
-                                                                    DateTime.now()
-                                                                        .minute
-                                                                ? ' '
-                                                                : screenSize.width <
-                                                                        651
-                                                                    ? _timeOfDay
-                                                                        .format(
-                                                                            context)
-                                                                        .toString()
-                                                                    : '${"  "}:${_timeOfDay.format(context).toString()}',
+                                                            '${"  "}${_timeOfDayOn.format(context).toString()}',
                                                             style: TextStyle(
                                                                 fontSize:16,
                                                                 fontWeight: FontWeight.bold,
@@ -121,7 +174,7 @@ class _AutoLightState extends State<AutoLight> {
                                                           ),
                                                           TextButton(
                                                             onPressed: () {
-                                                              _showTimePicker(
+                                                              _showTimePickerOn(
                                                                   context);
                                                               setState(() {});
                                                             },
@@ -143,7 +196,7 @@ class _AutoLightState extends State<AutoLight> {
                                           ],
                                         ),
                                         SizedBox(height: 20,),
-             Row(
+                                        Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceAround,
                                           children: [
@@ -189,17 +242,7 @@ class _AutoLightState extends State<AutoLight> {
                                                         children: <Widget>[
                                                           Text(
                                                             // ignore: unrelated_type_equality_checks
-                                                            _timeOfDay.minute ==
-                                                                    DateTime.now()
-                                                                        .minute
-                                                                ? ' '
-                                                                : screenSize.width <
-                                                                        651
-                                                                    ? _timeOfDay
-                                                                        .format(
-                                                                            context)
-                                                                        .toString()
-                                                                    : '${"  "}:${_timeOfDay.format(context).toString()}',
+                                                            '${"  "}${_timeOfDayOff.format(context).toString()}',
                                                             style: TextStyle(
                                                                 fontSize:16,
                                                                 fontWeight: FontWeight.bold,
@@ -209,7 +252,7 @@ class _AutoLightState extends State<AutoLight> {
                                                           ),
                                                           TextButton(
                                                             onPressed: () {
-                                                              _showTimePicker(
+                                                              _showTimePickerOff(
                                                                   context);
                                                               setState(() {});
                                                             },
@@ -342,4 +385,29 @@ class _AutoLightState extends State<AutoLight> {
       ))
     );
   }
+}
+showAlertDialog(BuildContext context) {
+  // Create button
+  Widget okButton = TextButton(
+    child: const Text("OK", style: TextStyle(color: Colors.black)),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  );
+
+  // Create AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Thông báo"),
+    content: Text("Cài đặt tự động mở đèn thành công"),
+    actions: [
+      okButton,
+    ],
+  );
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }
