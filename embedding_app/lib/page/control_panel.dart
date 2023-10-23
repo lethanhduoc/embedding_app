@@ -70,7 +70,7 @@ void updatePumbIsOn(bool newValue) {
                 actions: [
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, "/dashboard");
+                      Navigator.pop(context);
                     },
                     child: const Text('OK'),
                   ),

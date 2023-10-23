@@ -12,6 +12,8 @@ class _SettingAutomaticState extends State<SettingAutomatic> {
   DatabaseReference dbRefLight = FirebaseDatabase.instance.ref().child("data");
   bool isAutoLight = false;
   bool isAutoWater = false;
+  bool AutoLight = true;
+  bool AutoWater = true;
    @override
   void initState(){
     super.initState();
@@ -112,9 +114,9 @@ void updatePumbIsOn(bool newValue) {
                 title: Text('Máy bơm tự động', style: GoogleFonts.sarabun(fontSize: 16, color: Colors.black)),
                 onTap: () {
                   setState(() {
-                        isAutoWater == true ;
-                        updatePumbIsOn(isAutoWater);
-                        print(isAutoWater);
+                        AutoWater;
+                        updatePumbIsOn(AutoWater);
+                        print(AutoWater);
                       });
                   Navigator.pushNamed(context, "/autowater");
                 },
@@ -123,9 +125,9 @@ void updatePumbIsOn(bool newValue) {
                 title: Text('Mở đèn tự động', style: GoogleFonts.sarabun(fontSize: 16, color: Colors.black)),
                 onTap: () {
                   setState(() {
-                        isAutoLight == true ;
-                        updateLightIsOn(isAutoLight);
-                        print(isAutoLight);
+                        AutoLight;
+                        updateLightIsOn(AutoLight);
+                        print(AutoLight);
                       });
                   Navigator.pushNamed(context, "/autolight");
                 },
